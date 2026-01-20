@@ -43,3 +43,22 @@ Links
 
 - Index: [Overview](README.md)
 - Next: [Secrets & Credentials (Key Vault)](secrets.md)
+
+Databricks token acquisition (example)
+
+If your app needs to call Azure Databricks REST APIs (recommended) use an AAD access token with scope `https://databricks.azure.net/.default`.
+
+Example (C#) using `DefaultAzureCredential` — works locally (`az login` / VS sign-in) and in App Service (Managed Identity):
+
+```csharp
+var credential = new DefaultAzureCredential();
+var token = await credential.GetTokenAsync(
+	new TokenRequestContext(new[] { "https://databricks.azure.net/.default" }),
+	CancellationToken.None);
+
+httpClient.DefaultRequestHeaders.Authorization =
+	new AuthenticationHeaderValue("Bearer", token.Token);
+```
+
+See sample: `samples/databricks-sql-client` for a full working example that submits SQL statements and polls results.
+
