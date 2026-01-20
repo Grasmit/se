@@ -1,0 +1,18 @@
+graph LR
+  subgraph Internet
+    Client[Client App]
+  end
+
+  Client -->|HTTPS| AppGateway[App Service]
+  AppGateway --> API[ASP.NET Core API]
+  API --> SQL[Azure SQL]
+  API --> KV[Key Vault]
+  API --> SB[Service Bus]
+  API --> Blob[Blob Storage]
+  SB --> Worker[Background Worker]
+  Worker --> SQL
+  Databricks --> Blob
+  Databricks --> SQL
+
+  classDef azure fill:#f4faff,stroke:#0366d6
+  class AppGateway,API,SQL,KV,SB,Blob,Worker,Databricks azure

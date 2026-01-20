@@ -1,0 +1,38 @@
+name: CI - Build and deploy ASP.NET Core to Azure Web App (sample)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore ./DotNet/DtoVsDomain/src/DotNet.DtoVsDomain.Api/DotNet.DtoVsDomain.Api.csproj
+
+      - name: Build
+        run: dotnet publish ./DotNet/DtoVsDomain/src/DotNet.DtoVsDomain.Api/DotNet.DtoVsDomain.Api.csproj -c Release -o ./publish
+
+      - name: 'Login to Azure'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Deploy to Azure WebApp'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: '<YOUR_APP_SERVICE_NAME>'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish
+
+# Notes:
+# - Create `AZURE_CREDENTIALS` in repository secrets (service principal json) or use publish profile.
+# - Replace <YOUR_APP_SERVICE_NAME> with the target App Service name.
